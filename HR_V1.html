@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="es">
+<head>
+<!-- ============================================= -->
+<!-- CABECERA: Fuentes y librerías externas         -->
+<!-- ============================================= -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HARNES DESIGNER</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<script src="https://unpkg.com/dragselect@latest/dist/ds.min.js"></script>
+
+<!-- ============================================= -->
+<!-- SECCIÓN 1: ESTILOS CSS MODULARIZADOS        -->
+<!-- 12 módulos cargados en orden de dependencia   -->
+<!-- ============================================= -->
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/palette.css">
+<link rel="stylesheet" href="css/inspector.css">
+<link rel="stylesheet" href="css/calendar.css">
+<link rel="stylesheet" href="css/toggle.css">
+<link rel="stylesheet" href="css/canvas.css">
+<link rel="stylesheet" href="css/tooltips.css">
+<link rel="stylesheet" href="css/comments.css">
+<link rel="stylesheet" href="css/colors.css">
+<link rel="stylesheet" href="css/connection-labels.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+
+<!-- ============================================= -->
+<!-- SECCIÓN 2: ESTRUCTURA HTML                  -->
+<!-- ============================================= -->
+<body>
+<div class="app">
+
+  <!-- ===== BARRA LATERAL IZQUIERDA ===== -->
+  <aside class="sidebar" aria-label="Paleta e inspector">
+
+    <!-- Cabecera de la barra lateral -->
+    <div class="sidebar-header">
+      <div class="brand">Harnes Designer</div>
+    </div>
+
+    <!-- Cuerpo de la barra lateral (paleta + inspector) -->
+    <div class="sidebar-body">
+
+      <div>
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="15" y2="9"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          Componentes
+        </div>
+        <div class="palette" id="palette">
+          <div class="palette-item" draggable="true" data-type="connector">
+            <div class="item-icon">C</div>
+            <div><div class="palette-item-name">Conector</div></div>
+          </div>
+          <div class="palette-item" draggable="true" data-type="bifurcation">
+            <div class="item-icon amber">B</div>
+            <div><div class="palette-item-name">Bifurcación</div></div>
+          </div>
+          <div class="palette-item" draggable="true" data-type="terminal">
+            <div class="item-icon green">T</div>
+            <div><div class="palette-item-name">Terminal</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inspector-wrap">
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="m12 1 1.27 2.22L16 4l-1.27 2.22L16 8.5l-2.73-.78L12 9.5l-1.27-1.78L8 8.5l1.27-2.22L8 4l2.73.78L12 1z"></path>
+          </svg>
+          Inspector
+        </div>
+        <div id="inspectorContent"><div class="hint">Selecciona un nodo o un ramal para editar sus propiedades.</div></div>
+      </div>
+
+      <div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-full" id="saveAllBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar
+          </button>
+          <label class="btn btn-ghost btn-full" style="cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Cargar
+            <input type="file" id="openAllFile" accept=".harnesses.json,application/json">
+          </label>
+        </div>
+        <div style="margin-top: 6px;">
+          <button class="btn btn-ghost btn-full" id="exportCsvBtn" style="display: none;">
+            Exportar CSV
+          </button>
+        </div>
+        <div style="margin-top: 6px;">
+          <button class="btn btn-ghost btn-full" id="exportExcelBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><rect x="8" y="12" width="8" height="8" rx="1"/><path d="M16 3v5"/><path d="M8 3v5"/></svg>
+            Exportar Excel
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sidebar-footer">
+      <div style="display:flex;gap:6px;align-items:center">
+        <label class="toggle-row" style="flex:1">
+          <label class="toggle-switch">
+            <input type="checkbox" id="snapToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">AJUSTAR A CUADRÍCULA</span>
+        </label>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ===== ÁREA PRINCIPAL (CANVAS) ===== -->
+  <section class="canvas-wrap" id="canvasWrap">
+
+    <!-- Barra de herramientas superior -->
+    <div class="toolbar">
+      <button id="projectDataBtn" class="btn btn-ghost btn-sm" data-tooltip="Datos de proyecto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+        </svg>
+        Datos de proyecto
+      </button>
+      <div class="toolbar-sep"></div>
+      <button id="globalHistoryBtn" class="btn btn-ghost btn-sm" data-tooltip="Ver historial de comentarios del arnés actual">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M12 7v5l4 2"/>
+        </svg>
+        Historial
+      </button>
+      <div id="toolbarRight" class="toolbar-right">
+        <span id="projectNameDisplay" class="project-name-display" style="display: none;">Proyecto: </span>
+      </div>
+    </div>
+
+    <!-- Área de canvas principal -->
+    <div class="canvas" id="canvas" tabindex="0" aria-label="Proyecto de diseño">
+      <!-- SVG para las conexiones entre nodos -->
+      <svg class="connections" id="svg" width="4000" height="3000" style="position:absolute;left:0;top:0"></svg>
+      <!-- Contenedor para badges y etiquetas -->
+      <div id="badgesContainer" style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;"></div>
+    </div>
+
+    <!-- Pestañas inferiores para múltiples arneses -->
+    <div id="tabs" class="tabs-bottom" aria-label="Pestañas de arneses"></div>
+    
+    <!-- Botones de acción del canvas -->
+    <button id="clearCanvasBtn" class="clear-canvas-btn" data-tooltip="Limpiar diseño">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="m19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+    </button>
+    <button id="fabNewHarness" data-tooltip="Nuevo arnés">+</button>
+
+  </section>
+</div>
+
+<!-- ===== CONTENEDORES AUXILIARES ===== -->
+<!-- Container para notificaciones -->
+<div id="notificationContainer"></div>
+
+<!-- Container para tabla de etiquetas de conexión -->
+<div id="connectionLabelsTableContainer"></div>
+
+<!-- ============================================= -->
+<!-- SECCIÓN 3: VENTANAS MODALES                 -->
+<!-- ============================================= -->
+<div id="modalBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Editor de Conexionado</h3>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note" id="modalOwnerNote"></div>
+      <div id="connectionTable">
+        <div class="table-wrap">
+          <table class="mapping" id="modalConnectionTable">
+            <thead><tr><th>Pin origen</th><th>Conector destino</th><th>Pin destino</th><th>Señal</th><th>Tipo Cable</th><th>AWG/mm2</th><th>Color</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="modalSave">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<div id="summaryBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header"><h3>Resumen de Conexionado</h3></div>
+    <div class="modal-body">
+      <div class="table-wrap">
+        <table class="mapping" id="summaryTable">
+          <thead><tr><th>Conector Origen</th><th>Pin Origen</th><th>Conector Destino</th><th>Pin Destino</th><th>Señal</th><th>Tipo Cable</th><th>AWG/mm2</th><th>Color</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="summaryClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="clearConfirmBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>¿Limpiar diseño?</h3></div>
+    <div class="modal-body">Esta acción eliminará todos los nodos y ramales del arnés actual. No se puede deshacer.</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="clearCancel">Cancelar</button>
+      <button class="btn btn-danger" id="clearAccept">Eliminar todo</button>
+    </div>
+  </div>
+</div>
+
+<div id="closeTabConfirmBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>¿Cerrar pestaña?</h3></div>
+    <div class="modal-body">La pestaña contiene datos. Si la cierras perderás los cambios no guardados en este arnés.</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="closeTabCancel">Cancelar</button>
+      <button class="btn btn-danger" id="closeTabAccept">Cerrar pestaña</button>
+    </div>
+  </div>
+</div>
+
+<div id="deleteNodeConfirmBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>¿Eliminar nodo?</h3></div>
+    <div class="modal-body">
+      <div id="deleteNodeMessage"></div>
+      <div id="deleteNodeConnectionsWarning" style="display:none" class="modal-note" style="background:var(--amber-dim);border-left-color:var(--amber);color:var(--text-bright);margin-top:12px;">
+        ⚠️ <strong>Advertencia:</strong> Este nodo tiene conexiones activas que serán eliminadas. Esta acción no se puede deshacer.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="deleteNodeCancel">Cancelar</button>
+      <button class="btn btn-danger" id="deleteNodeAccept">Eliminar nodo</button>
+    </div>
+  </div>
+</div>
+
+<div id="commentModalBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="commentModalTitle">Añadir Comentario</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="commentAuthor">Usuario</label>
+        <input type="text" id="commentAuthor" placeholder="Tu usuario..." value="">
+      </div>
+      <div class="field">
+        <label for="commentText">Comentario</label>
+        <textarea id="commentText" placeholder="Escribe tu comentario aquí..." rows="4" style="resize: vertical; min-height: 80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="commentModalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="commentModalSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="historyModalBackdrop" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Historial de Comentarios</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Filtrar por elemento</label>
+        <select id="historyFilter" style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--panel);color:var(--text-bright);font-size:14px;">
+          <option value="">Todos los comentarios</option>
+        </select>
+      </div>
+      <div class="comments-list" id="historyCommentsList" style="max-height:300px;overflow-y:auto;margin-top:12px;">
+        <div class="no-comments">No hay comentarios</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="historyModalClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="deleteConfirmModal" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>¿Eliminar comentario?</h3>
+    </div>
+    <div class="modal-body">
+      <p id="deleteConfirmMessage">Esta acción no se puede deshacer.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="deleteConfirmCancel">Cancelar</button>
+      <button class="btn btn-danger" id="deleteConfirmAccept">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div id="projectDataModal" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Datos de Proyecto</h3>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="businessUnitInput">Business Unit</label>
+          <input type="text" id="businessUnitInput" class="form-input" placeholder="Introduce la Business Unit...">
+        </div>
+        <div class="form-group">
+          <label for="projectNameInput">Nombre del Proyecto</label>
+          <input type="text" id="projectNameInput" class="form-input" placeholder="Introduce el nombre del proyecto...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="projectPasswordInput">Contraseña proyecto/elemento</label>
+          <input type="text" id="projectPasswordInput" class="form-input" placeholder="Introduce la contraseña...">
+        </div>
+        <div class="form-group">
+          <label for="designResponsibleInput">Responsable de diseño</label>
+          <input type="text" id="designResponsibleInput" class="form-input" placeholder="Introduce el responsable...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="projectHeaderInput">Cabecera del proyecto</label>
+          <input type="text" id="projectHeaderInput" class="form-input" placeholder="Introduce la cabecera...">
+        </div>
+        <div class="form-group">
+          <label for="applicableStandardInput">Normativa Aplicable</label>
+          <input type="text" id="applicableStandardInput" class="form-input" placeholder="Introduce la normativa...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="specificRequirementsInput">Requisitos específicos</label>
+        <textarea id="specificRequirementsInput" class="form-input" rows="3" placeholder="Introduce los requisitos específicos..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="icmProjectNameInput">Nombre del proyecto en ICM</label>
+          <input type="text" id="icmProjectNameInput" class="form-input" placeholder="Introduce el nombre en ICM...">
+        </div>
+        <div class="form-group">
+          <label for="workCenterInput">Centro de trabajo</label>
+          <input type="text" id="workCenterInput" class="form-input" placeholder="Introduce el centro de trabajo...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="icmAreaInput">Área en ICM</label>
+          <input type="text" id="icmAreaInput" class="form-input" placeholder="Introduce el área en ICM...">
+        </div>
+        <div class="form-group">
+          <label for="requiredDateInput">Fecha necesaria de trabajo</label>
+          <div class="date-input-wrapper">
+            <input type="text" id="requiredDateInput" class="form-input date-input" readonly placeholder="Seleccionar fecha...">
+            <div class="calendar-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="projectDataCancel">Cancelar</button>
+      <button class="btn btn-primary" id="projectDataSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Calendar Modal -->
+<div id="calendarModal" style="display:none" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Seleccionar Fecha</h3>
+    </div>
+    <div class="modal-body">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <button id="calendarPrevMonth" class="calendar-nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div id="calendarMonthYear" class="calendar-month-year"></div>
+          <button id="calendarNextMonth" class="calendar-nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="calendar-weekdays">
+          <div class="calendar-weekday">Dom</div>
+          <div class="calendar-weekday">Lun</div>
+          <div class="calendar-weekday">Mar</div>
+          <div class="calendar-weekday">Mié</div>
+          <div class="calendar-weekday">Jue</div>
+          <div class="calendar-weekday">Vie</div>
+          <div class="calendar-weekday">Sáb</div>
+        </div>
+        <div id="calendarDays" class="calendar-days"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="calendarCancel">Cancelar</button>
+      <button class="btn btn-primary" id="calendarToday">Hoy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- SECCIÓN 4: JAVASCRIPT MODULARIZADO           -->
+<!-- 16 módulos cargados en orden de dependencia   -->
+<!-- ============================================= -->
+<script src="js/state.js"></script>
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/nodes.js"></script>
+<script src="js/links.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/modal-mapping.js"></script>
+<script src="js/modal-summary.js"></script>
+<script src="js/serialization.js"></script>
+<script src="js/tabs.js"></script>
+<script src="js/project.js"></script>
+<script src="js/comments.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/connection-labels.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

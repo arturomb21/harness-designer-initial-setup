@@ -1,0 +1,57 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * HARNESS DESIGNER — palette.css
+ * Paleta de componentes — items arrastrables, iconos, drag ghost.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ===== PALETA DE COMPONENTES ===== */
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;font-weight:700;letter-spacing:1.5px;
+    color:var(--text-bright);text-transform:uppercase;
+    margin-bottom:6px;
+    display:flex;align-items:center;
+  }
+  .section-label.active{
+    color:var(--accent);
+  }
+  .badge{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    letter-spacing:0.5px;
+    transition:all .15s ease;
+  }
+  .badge:hover{
+    background:var(--accent-hover)!important;
+    transform:scale(1.05);
+  }
+
+  .palette{display:flex;flex-direction:column;gap:6px}
+  .palette-item{
+    background:var(--panel2);
+    padding:10px 12px;border-radius:8px;cursor:grab;
+    display:flex;gap:10px;align-items:center;
+    border:1px solid var(--border);
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .palette-item:hover{
+    border-color:var(--accent);
+    background:var(--accent-dim);
+    transform:translateX(2px);
+    box-shadow:0 2px 8px rgba(74,144,226,0.2);
+  }
+  .palette-item:active{
+    transform:translateX(1px);
+    box-shadow:0 1px 4px rgba(74,144,226,0.3);
+  }
+  .item-icon{
+    width:32px;height:32px;border-radius:6px;
+    background:var(--accent-dim);
+    border:1px solid var(--border-strong);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--accent);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;font-size:13px;flex-shrink:0;
+  }
+  .item-icon.green{background:var(--green-dim);border-color:rgba(16,185,129,0.25);color:var(--green)}
+  .item-icon.amber{background:var(--amber-dim);border-color:rgba(245,158,11,0.25);color:var(--amber)}
+  .palette-item-name{font-weight:600;font-size:14px;color:var(--text-bright)}

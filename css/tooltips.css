@@ -1,0 +1,180 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * HARNESS DESIGNER — tooltips.css
+ * Tooltips personalizados para FAB, pestañas e historial.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+  /* Custom tooltips */
+  [data-tooltip] {
+    position: relative;
+  }
+  
+  /* Tooltips para botones FAB y limpiar diseño (izquierda, centrados) */
+  #clearCanvasBtn:hover::after,
+  #fabNewHarness:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    margin-right: 12px;
+    padding: 6px 10px;
+    background: var(--panel);
+    color: var(--text-bright);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    animation: tooltipFadeInLeft 0.2s ease forwards;
+  }
+  
+  #clearCanvasBtn:hover::before,
+  #fabNewHarness:hover::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    margin-right: 8px;
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 4px solid var(--border);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeInLeft 0.2s ease forwards;
+  }
+  
+  /* Tooltips para pestañas de arnés (derecha, encima) */
+  .tab span:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 100%;
+    transform: translateX(-8px);
+    margin-bottom: 8px;
+    margin-left: 8px;
+    padding: 6px 10px;
+    background: var(--panel);
+    color: var(--text-bright);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    animation: tooltipFadeInTab 0.2s ease forwards;
+  }
+  
+  .tab span:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 100%;
+    transform: translateX(-8px);
+    margin-bottom: 4px;
+    margin-left: 4px;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--border);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeInTab 0.2s ease forwards;
+  }
+  
+  /* Tooltips para botón de historial (por defecto, arriba centrado) */
+  #globalHistoryBtn:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    background: var(--panel);
+    color: var(--text-bright);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
+  }
+  
+  #globalHistoryBtn:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 4px;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid var(--border);
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
+  }
+  
+  @keyframes tooltipFadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  
+  @keyframes tooltipFadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+  }
+  
+  @keyframes tooltipFadeInTab {
+    from {
+      opacity: 0;
+      transform: translateX(-8px) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-8px) translateY(0);
+    }
+  }
+
+  .selection-box {
+    position: absolute;
+    border: 2px dashed var(--accent);
+    background: rgba(59,130,246,0.1);
+    pointer-events: none;
+    z-index: 1000;
+  }

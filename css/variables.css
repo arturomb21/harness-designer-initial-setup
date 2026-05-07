@@ -1,0 +1,54 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * HARNESS DESIGNER — variables.css
+ * Variables CSS globales (:root) — colores, dimensiones, IEC 60757.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ===== VARIABLES GLOBALES ===== */
+  :root{
+    /* Colores principales */
+    --bg:#050B14;
+    --panel:#0C1A2B;
+    --panel2:#0A1520;
+    --border:#1A2738;
+    --border-strong:#233142;
+    --text:#d4dce8;
+    --text-bright:#e8ebf5;
+    --muted:#7d8590;
+    --muted2:#5a6278;
+    
+    /* Colores de acento */
+    --accent:#4a90e2;
+    --accent-dim:rgba(74,144,226,0.15);
+    --accent-hover:rgba(74,144,226,0.25);
+    --green:#4ade80;
+    --green-dim:rgba(74,222,128,0.12);
+    --amber:#fbbf24;
+    --amber-dim:rgba(251,191,36,0.12);
+    --red:#f87171;
+    --red-dim:rgba(248,113,113,0.12);
+    --purple:#8b5cf6;
+    --purple-dim:rgba(139,92,246,0.12);
+    
+    /* Colores IEC 60757 para cables */
+    --iec-brown:#8B4513;
+    --iec-red:#FF0000;
+    --iec-orange:#FFA500;
+    --iec-yellow:#FFFF00;
+    --iec-green:#00FF00;
+    --iec-blue:#0000FF;
+    --iec-violet:#8B008B;
+    --iec-grey:#808080;
+    --iec-white:#FFFFFF;
+    --iec-black:#000000;
+    
+    /* Dimensiones y efectos */
+    --radius:8px;
+    --shadow:0 8px 32px rgba(0,0,0,0.4);
+    --node-w:96px;   /* 4 cuadrículas (4 × 24px) */
+    --node-h:96px;   /* 4 cuadrículas (4 × 24px) */
+    --grid-px:24px;
+  }
+
+  /* ===== ESTILOS GENERALES ===== */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden}

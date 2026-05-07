@@ -1,0 +1,19 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * HARNESS DESIGNER — animations.css
+ * Keyframes de animación (nodeCreate).
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ===== ANIMACIONES ===== */
+  @keyframes nodeCreate {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
