@@ -147,76 +147,66 @@ exportExcelBtn.addEventListener('click',()=>{
   
     
   // Función para aplicar formato profesional usando ExcelJS (sin bold)
+  // Nota: en las hojas de arnés hay varias secciones (BOM + Conectados),
+  // así que detectamos dinámicamente filas de sección/cabeceras.
   function applyProfessionalFormat(worksheet, sheetName) {
-    // Aplicar formato al título (fila 1)
-    const titleRow = worksheet.getRow(1);
-    titleRow.eachCell((cell, colNumber) => {
-      cell.font = {
-        size: 14, // Reducido de 16 a 14
-        color: { argb: 'FFFFFFFF' } // Blanco
-      };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF4A90E2' } // Azul más claro y estético
-      };
-      cell.alignment = {
-        horizontal: 'center',
-        vertical: 'center',
-        wrapText: true
-      };
-      cell.border = {
-        top: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        bottom: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        left: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        right: { style: 'medium', color: { argb: 'FF2E7DAF' } }
-      };
-    });
-    
-    // Aplicar formato a las cabeceras de datos (fila 3) - sin bold
-    const headerRow = worksheet.getRow(3);
-    headerRow.eachCell((cell, colNumber) => {
-      cell.font = {
-        size: 11, // Reducido de 12 a 11
-        color: { argb: 'FFFFFFFF' } // Blanco
-      };
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF4A90E2' } // Azul más claro y estético
-      };
-      cell.alignment = {
-        horizontal: 'center',
-        vertical: 'center',
-        wrapText: true
-      };
-      cell.border = {
-        top: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        bottom: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        left: { style: 'medium', color: { argb: 'FF2E7DAF' } },
-        right: { style: 'medium', color: { argb: 'FF2E7DAF' } }
-      };
-    });
-    
-    // Aplicar formato a las filas de datos con alternancia (desde fila 4)
-    for(let row = 4; row <= 1000; row++) {
-      const dataRow = worksheet.getRow(row);
-      const isAlternating = row % 2 === 0;
-      
-      dataRow.eachCell((cell, colNumber) => {
-        cell.font = {
-          size: 11,
-          color: { argb: 'FF1A202C' } // Texto oscuro
+    const TITLE_BG = 'FF4A90E2';
+    const TITLE_BORDER = 'FF2E7DAF';
+    const HEADER_BG = 'FF2E7DAF';
+
+    const getText = (v) => {
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'object' && v.text) return String(v.text);
+      return String(v);
+    };
+
+    const styleTitleRow = (row) => {
+      row.eachCell((cell) => {
+        cell.font = { size: 14, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: TITLE_BG } };
+        cell.alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: TITLE_BORDER } },
+          bottom: { style: 'medium', color: { argb: TITLE_BORDER } },
+          left: { style: 'medium', color: { argb: TITLE_BORDER } },
+          right: { style: 'medium', color: { argb: TITLE_BORDER } }
         };
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: isAlternating ? 'FFF1F5F9' : 'FFFFFFFF' } // Alternancia
+      });
+    };
+
+    const styleSectionRow = (row) => {
+      row.eachCell((cell) => {
+        cell.font = { size: 12, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: TITLE_BG } };
+        cell.alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: TITLE_BORDER } },
+          bottom: { style: 'medium', color: { argb: TITLE_BORDER } },
+          left: { style: 'medium', color: { argb: TITLE_BORDER } },
+          right: { style: 'medium', color: { argb: TITLE_BORDER } }
         };
-        cell.alignment = {
-          vertical: 'center',
-          wrapText: true
+      });
+    };
+
+    const styleHeaderRow = (row) => {
+      row.eachCell((cell) => {
+        cell.font = { size: 11, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_BG } };
+        cell.alignment = { horizontal: 'center', vertical: 'center', wrapText: true };
+        cell.border = {
+          top: { style: 'medium', color: { argb: TITLE_BORDER } },
+          bottom: { style: 'medium', color: { argb: TITLE_BORDER } },
+          left: { style: 'medium', color: { argb: TITLE_BORDER } },
+          right: { style: 'medium', color: { argb: TITLE_BORDER } }
         };
+      });
+    };
+
+    const styleDataRow = (row, isAlternating) => {
+      row.eachCell((cell) => {
+        cell.font = { size: 11, color: { argb: 'FF1A202C' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isAlternating ? 'FFF1F5F9' : 'FFFFFFFF' } };
+        cell.alignment = { vertical: 'center', wrapText: true };
         cell.border = {
           top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
           bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
@@ -224,22 +214,53 @@ exportExcelBtn.addEventListener('click',()=>{
           right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
         };
       });
+    };
+
+    // Título fila 1
+    styleTitleRow(worksheet.getRow(1));
+
+    // Columnas: equilibradas para que sirvan tanto a BOM como a conexiones
+    worksheet.getColumn(1).width = 26; // Nodo/Conector Origen
+    worksheet.getColumn(2).width = 24; // P/N / Pin origen
+    worksheet.getColumn(3).width = 46; // Descripción / Conector destino
+    worksheet.getColumn(4).width = 14; // Pin destino
+    worksheet.getColumn(5).width = 20; // Señal / extras
+    worksheet.getColumn(6).width = 18; // Tipo cable
+    worksheet.getColumn(7).width = 10; // AWG/mm2
+    worksheet.getColumn(8).width = 12; // Color
+
+    // Estilado por tipo de fila
+    for (let r = 2; r <= worksheet.rowCount; r++) {
+      const row = worksheet.getRow(r);
+      const a1 = getText(row.getCell(1).value).trim();
+      const a2 = getText(row.getCell(2).value).trim();
+      const a3 = getText(row.getCell(3).value).trim();
+
+      const isSection = a1 === 'BILL OF MATERIALS (BOM)' || a1 === 'CONECTADOS';
+      const isBomHeader = a1 === 'Nodo' && a2 === 'P/N' && a3 === 'Descripción';
+      const isConnHeader = a1 === 'Conector Origen' && a2 === 'Pin Origen';
+
+      if (isSection) {
+        styleSectionRow(row);
+      } else if (isBomHeader || isConnHeader) {
+        styleHeaderRow(row);
+      } else {
+        const isAlternating = r % 2 === 0;
+        styleDataRow(row, isAlternating);
+      }
     }
-    
-    // Ajustar ancho de columnas
-    worksheet.getColumn(1).width = 18; // Conector Origen
-    worksheet.getColumn(2).width = 8;  // Pin Origen
-    worksheet.getColumn(3).width = 18; // Conector Destino
-    worksheet.getColumn(4).width = 8;  // Pin Destino
-    worksheet.getColumn(5).width = 20; // Señal
-    worksheet.getColumn(6).width = 18; // Tipo Cable
-    worksheet.getColumn(7).width = 6;  // AWG/mm2
-    worksheet.getColumn(8).width = 16; // Color
-    
-    // Congelar la tercera fila (cabeceras de datos)
-    worksheet.views = [
-      { state: 'frozen', xSplit: 0, ySplit: 3, topLeftCell: 'A4', activeCell: 'A4' }
-    ];
+
+    // Congelar la fila de cabecera de conexiones si existe; si no, congelar las primeras 5 filas
+    const connHeaderIdx = (() => {
+      for (let r = 1; r <= worksheet.rowCount; r++) {
+        const row = worksheet.getRow(r);
+        const a1 = getText(row.getCell(1).value).trim();
+        const a2 = getText(row.getCell(2).value).trim();
+        if (a1 === 'Conector Origen' && a2 === 'Pin Origen') return r;
+      }
+      return 5;
+    })();
+    worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: connHeaderIdx, topLeftCell: `A${connHeaderIdx + 1}`, activeCell: `A${connHeaderIdx + 1}` }];
   }
   
   // Generar archivo Excel usando ExcelJS
@@ -393,54 +414,56 @@ exportExcelBtn.addEventListener('click',()=>{
       harnessSheet.addRow([hname, '', '', '', '', '', '', '']);
       harnessSheet.addRow(['', '', '', '', '', '', '', '']);
       
-      // BOM (por nodo): una fila por nodo con sus P/N asociados (principal → backshell → adicionales)
+      // BOM por arnés: una fila por cada P/N del nodo (principal / backshell / adicionales).
+      // Columnas: Nodo (opcional), P/N, Descripción.
       const bomRows = [];
       (h.nodes || []).forEach(node => {
         const type = node.type || '';
-        // Solo nodos relevantes (conector/terminal) o cualquier nodo que tenga P/N / extras
-        const pnPrincipal = (node.pn || '').trim();
-        const pnBackshell = (type === 'connector' ? (node.backshell || '').trim() : '');
-        const extraParts = Array.isArray(node.extraParts) ? node.extraParts : [];
-        const extraList = extraParts
-          .map(p => ({
-            name: (p && p.name ? String(p.name).trim() : ''),
-            pn: (p && p.pn ? String(p.pn).trim() : '')
-          }))
-          .filter(p => p.name || p.pn);
-
-        // Si no hay nada que exportar para este nodo, omitirlo
-        if (!pnPrincipal && !pnBackshell && extraList.length === 0) return;
-
         const displayName = getDisplayName(node, node.id);
-        const extraText = extraList
-          .map(p => (p.name && p.pn) ? `${p.name}: ${p.pn}` : (p.pn || p.name))
-          .join('\n');
 
-        bomRows.push({
-          name: displayName,
-          type,
-          pnPrincipal,
-          pnBackshell,
-          extraText
+        const pnPrincipal = (node.pn || '').trim();
+        if (pnPrincipal) {
+          bomRows.push({
+            node: displayName,
+            pn: pnPrincipal,
+            desc: `${type === 'terminal' ? 'Terminal' : type === 'connector' ? 'Conector' : 'Nodo'}: ${displayName}`
+          });
+        }
+
+        const pnBackshell = (type === 'connector' ? (node.backshell || '').trim() : '');
+        if (pnBackshell) {
+          bomRows.push({
+            node: displayName,
+            pn: pnBackshell,
+            desc: `Backshell (Nodo: ${displayName})`
+          });
+        }
+
+        const extraParts = Array.isArray(node.extraParts) ? node.extraParts : [];
+        extraParts.forEach(p => {
+          const pn = (p && p.pn ? String(p.pn).trim() : '');
+          const name = (p && p.name ? String(p.name).trim() : '');
+          if (!pn) return; // BOM basada en P/N: si no hay P/N, no se exporta
+          bomRows.push({
+            node: displayName,
+            pn,
+            desc: name ? `Extra: ${name} (Nodo: ${displayName})` : `Extra (Nodo: ${displayName})`
+          });
         });
       });
       
       // Agregar sección BOM
       harnessSheet.addRow(['BILL OF MATERIALS (BOM)', '', '', '', '', '', '', '']);
       harnessSheet.addRow(['']);
-      harnessSheet.addRow(['Nodo', 'Tipo', 'P/N Principal', 'P/N Backshell', 'P/N Adicionales', '', '', '']);
+      harnessSheet.addRow(['Nodo', 'P/N', 'Descripción', '', '', '', '', '']);
       
       // Agregar componentes BOM
       bomRows.forEach(item => {
         harnessSheet.addRow([
-          item.name,
-          item.type,
-          item.pnPrincipal,
-          item.pnBackshell,
-          item.extraText,
-          '',
-          '',
-          ''
+          item.node || '',
+          item.pn || '',
+          item.desc || '',
+          '', '', '', '', ''
         ]);
       });
       
@@ -496,9 +519,12 @@ exportExcelBtn.addEventListener('click',()=>{
       // Combinar celdas para el título
       harnessSheet.mergeCells('A1:H1');
       
-      // Combinar celdas para títulos de secciones
-      harnessSheet.mergeCells('A3:H3'); // BILL OF MATERIALS
-      harnessSheet.mergeCells('A' + (bomRows.length + 7) + ':H' + (bomRows.length + 7)); // CONECTADOS
+      // Combinar celdas para títulos de secciones (según estructura actual)
+      // A3:H3 = BILL OF MATERIALS (BOM)
+      harnessSheet.mergeCells('A3:H3');
+      // Título CONECTADOS está después de: A3 (título BOM) + A4 (blank) + A5 (cabecera BOM) + bomRows + blank
+      const conectadosTitleRow = 3 + 1 + 1 + 1 + bomRows.length + 1; // = bomRows.length + 7
+      harnessSheet.mergeCells(`A${conectadosTitleRow}:H${conectadosTitleRow}`);
       
       // Aplicar formato profesional a la hoja del arnés
       applyProfessionalFormat(harnessSheet, hname);
