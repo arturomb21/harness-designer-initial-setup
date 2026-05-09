@@ -279,8 +279,10 @@ exportExcelBtn.addEventListener('click',()=>{
     summarySheet.addRow(['DATOS COMPLETOS DEL PROYECTO']);
     summarySheet.addRow(['']);
     summarySheet.addRow(['Business Unit:', AppState.project?.meta?.businessUnit || 'No especificado']);
-    summarySheet.addRow(['Nombre del Proyecto:', AppState.project?.meta?.projectName || 'No especificado']);
-    summarySheet.addRow(['Contraseña:', AppState.project?.meta?.projectPassword || 'No especificado']);
+    // El nombre del proyecto se guarda en AppState.project.name (no en meta)
+    summarySheet.addRow(['Nombre del Proyecto:', AppState.project?.name || 'No especificado']);
+    // En el modal se guarda como meta.password
+    summarySheet.addRow(['Contraseña:', AppState.project?.meta?.password || 'No especificado']);
     summarySheet.addRow(['Responsable de Diseño:', AppState.project?.meta?.designResponsible || 'No especificado']);
     summarySheet.addRow(['Cabecera del Proyecto:', AppState.project?.meta?.projectHeader || 'No especificado']);
     summarySheet.addRow(['Normativa Aplicable:', AppState.project?.meta?.applicableStandard || 'No especificado']);
@@ -391,64 +393,54 @@ exportExcelBtn.addEventListener('click',()=>{
       harnessSheet.addRow([hname, '', '', '', '', '', '', '']);
       harnessSheet.addRow(['', '', '', '', '', '', '', '']);
       
-      // Crear lista BOM (Bill of Materials) única
-      const bomList = new Map(); // Usar Map para evitar duplicados
-      
-      // Recopilar componentes para BOM (todos los componentes por tipo con sus P/N)
+      // BOM (por nodo): una fila por nodo con sus P/N asociados (principal → backshell → adicionales)
+      const bomRows = [];
       (h.nodes || []).forEach(node => {
-        const displayName = getDisplayName(node, node.id);
-        const partNumber = node.pn || '';
         const type = node.type || '';
-        const backshell = node.backshell || '';
-        const backshellPN = node.backshellpn || '';
-        
-        // Agregar conector principal (siempre que tenga P/N)
-        if (partNumber && partNumber.trim()) {
-          const key = `${displayName}_${partNumber}`;
-          if (!bomList.has(key)) {
-            bomList.set(key, {
-              name: displayName,
-              partNumber: partNumber,
-              type: type,
-              quantity: 1
-            });
-          } else {
-            // Incrementar cantidad si ya existe
-            const existing = bomList.get(key);
-            existing.quantity += 1;
-          }
-        }
-        
-        // Agregar backshell como fila separada (siempre que exista, con o sin P/N)
-        if (backshell && backshell.trim()) {
-          const backshellKey = `${backshell}_${backshellPN}`;
-          if (!bomList.has(backshellKey)) {
-            bomList.set(backshellKey, {
-              name: backshellPN && backshellPN.trim() ? 'Backshell' : backshell,
-              partNumber: backshellPN || '',
-              type: 'backshell',
-              quantity: 1
-            });
-          } else {
-            // Incrementar cantidad si ya existe
-            const existing = bomList.get(backshellKey);
-            existing.quantity += 1;
-          }
-        }
+        // Solo nodos relevantes (conector/terminal) o cualquier nodo que tenga P/N / extras
+        const pnPrincipal = (node.pn || '').trim();
+        const pnBackshell = (type === 'connector' ? (node.backshell || '').trim() : '');
+        const extraParts = Array.isArray(node.extraParts) ? node.extraParts : [];
+        const extraList = extraParts
+          .map(p => ({
+            name: (p && p.name ? String(p.name).trim() : ''),
+            pn: (p && p.pn ? String(p.pn).trim() : '')
+          }))
+          .filter(p => p.name || p.pn);
+
+        // Si no hay nada que exportar para este nodo, omitirlo
+        if (!pnPrincipal && !pnBackshell && extraList.length === 0) return;
+
+        const displayName = getDisplayName(node, node.id);
+        const extraText = extraList
+          .map(p => (p.name && p.pn) ? `${p.name}: ${p.pn}` : (p.pn || p.name))
+          .join('\n');
+
+        bomRows.push({
+          name: displayName,
+          type,
+          pnPrincipal,
+          pnBackshell,
+          extraText
+        });
       });
       
       // Agregar sección BOM
       harnessSheet.addRow(['BILL OF MATERIALS (BOM)', '', '', '', '', '', '', '']);
       harnessSheet.addRow(['']);
-      harnessSheet.addRow(['Componente', 'P/N', 'Tipo', 'Cantidad']);
+      harnessSheet.addRow(['Nodo', 'Tipo', 'P/N Principal', 'P/N Backshell', 'P/N Adicionales', '', '', '']);
       
       // Agregar componentes BOM
-      bomList.forEach(item => {
+      bomRows.forEach(item => {
         harnessSheet.addRow([
           item.name,
-          item.partNumber,
           item.type,
-          item.quantity
+          item.pnPrincipal,
+          item.pnBackshell,
+          item.extraText,
+          '',
+          '',
+          ''
         ]);
       });
       
@@ -505,8 +497,8 @@ exportExcelBtn.addEventListener('click',()=>{
       harnessSheet.mergeCells('A1:H1');
       
       // Combinar celdas para títulos de secciones
-      harnessSheet.mergeCells('A4:H4'); // BILL OF MATERIALS
-      harnessSheet.mergeCells('A' + (bomList.size + 7) + ':H' + (bomList.size + 7)); // CONECTADOS
+      harnessSheet.mergeCells('A3:H3'); // BILL OF MATERIALS
+      harnessSheet.mergeCells('A' + (bomRows.length + 7) + ':H' + (bomRows.length + 7)); // CONECTADOS
       
       // Aplicar formato profesional a la hoja del arnés
       applyProfessionalFormat(harnessSheet, hname);
@@ -529,7 +521,7 @@ exportExcelBtn.addEventListener('click',()=>{
     });
     
     // Generar nombre de archivo profesional
-    const projectName = (AppState.project && AppState.project.meta && AppState.project.meta.projectName) || 'harnes';
+    const projectName = (AppState.project && AppState.project.name) || 'harnes';
     const businessUnit = (AppState.project && AppState.project.meta && AppState.project.meta.businessUnit) || 'GEN';
     const date = new Date().toISOString().split('T')[0];
     const filename = `${businessUnit}_${projectName}_${date}.xlsx`;
