@@ -58,6 +58,9 @@ function createNode(type, x, y, opts={}){
     pn: opts.pn||'',
     backshell: opts.backshell||'',
     label: opts.label||'',
+    // Componentes adicionales (ej: sellos, contactos, capuchones, etc.)
+    // Array<{ name: string, pn: string }>
+    extraParts: Array.isArray(opts.extraParts) ? deepClone(opts.extraParts) : [],
     mapping: Array.isArray(opts.mapping) ? deepClone(opts.mapping) : [],
     connectionsCount: Number(opts.connectionsCount||(type==='terminal'?1:0)),
     backshellBadgeEl: backshellBadge,

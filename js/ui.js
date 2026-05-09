@@ -640,6 +640,150 @@ function showInspectorForNode(nodeId){
     fBs.appendChild(iBs); inspectorContent.appendChild(fBs);
   }
 
+  // Componentes adicionales (conectores y terminales)
+  if(node.type==='connector' || node.type==='terminal'){
+    const section = document.createElement('div');
+    section.className = 'extra-parts';
+
+    const header = document.createElement('div');
+    header.className = 'extra-parts-header';
+
+    const title = document.createElement('div');
+    title.className = 'extra-parts-title';
+    title.textContent = 'Componentes adicionales';
+
+    const actions = document.createElement('div');
+    actions.className = 'extra-parts-actions';
+
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'extra-parts-add';
+    addBtn.textContent = '+';
+    addBtn.title = 'Añadir componente';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'extra-parts-toggle';
+    toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    toggleBtn.title = 'Mostrar/ocultar';
+
+    actions.appendChild(addBtn);
+    actions.appendChild(toggleBtn);
+    header.appendChild(title);
+    header.appendChild(actions);
+
+    const body = document.createElement('div');
+    body.className = 'extra-parts-body';
+
+    const list = document.createElement('div');
+    list.className = 'extra-parts-list';
+
+    const ensureExtraParts = () => {
+      if(!Array.isArray(node.extraParts)) node.extraParts = [];
+    };
+
+    const renderList = () => {
+      ensureExtraParts();
+      list.innerHTML = '';
+
+      if(node.extraParts.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'extra-parts-empty';
+        empty.textContent = 'Sin componentes adicionales';
+        list.appendChild(empty);
+        return;
+      }
+
+      node.extraParts.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = 'extra-part-row';
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.placeholder = 'Nombre';
+        nameInput.value = (p && p.name) ? String(p.name) : '';
+        nameInput.className = 'extra-part-input';
+
+        const pnInput = document.createElement('input');
+        pnInput.type = 'text';
+        pnInput.placeholder = 'P/N';
+        pnInput.value = (p && p.pn) ? String(p.pn) : '';
+        pnInput.className = 'extra-part-input';
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'extra-part-del';
+        delBtn.textContent = '✕';
+        delBtn.title = 'Eliminar';
+
+        const commit = () => {
+          ensureExtraParts();
+          if(!node.extraParts[idx]) node.extraParts[idx] = { name: '', pn: '' };
+          node.extraParts[idx].name = nameInput.value.trim();
+          node.extraParts[idx].pn = pnInput.value.trim();
+          markCurrentDirty();
+        };
+
+        nameInput.addEventListener('blur', commit);
+        pnInput.addEventListener('blur', commit);
+        nameInput.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter'){ e.preventDefault(); commit(); pnInput.focus(); pnInput.select(); }
+        });
+        pnInput.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter'){ e.preventDefault(); commit(); pnInput.blur(); }
+        });
+
+        delBtn.addEventListener('click', () => {
+          ensureExtraParts();
+          node.extraParts.splice(idx, 1);
+          markCurrentDirty();
+          renderList();
+        });
+
+        row.appendChild(nameInput);
+        row.appendChild(pnInput);
+        row.appendChild(delBtn);
+        list.appendChild(row);
+      });
+    };
+
+    addBtn.addEventListener('click', () => {
+      ensureExtraParts();
+      node.extraParts.push({ name: '', pn: '' });
+      markCurrentDirty();
+      renderList();
+      body.style.display = 'block';
+    });
+
+    const toggleBody = () => {
+      const isHidden = body.style.display === 'none';
+      body.style.display = isHidden ? 'block' : 'none';
+      section.classList.toggle('open', isHidden);
+    };
+
+    header.addEventListener('click', (e) => {
+      // Evitar que el click del botón + inserte un toggle doble
+      if(e.target === addBtn || e.target.closest('.extra-parts-add')) return;
+      toggleBody();
+    });
+    toggleBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); toggleBody(); });
+
+    body.appendChild(list);
+    section.appendChild(header);
+    section.appendChild(body);
+    inspectorContent.appendChild(section);
+
+    // Abrir por defecto si ya hay componentes
+    renderList();
+    if(Array.isArray(node.extraParts) && node.extraParts.length > 0){
+      body.style.display = 'block';
+      section.classList.add('open');
+    } else {
+      body.style.display = 'none';
+      section.classList.remove('open');
+    }
+  }
+
   if(node.type==='connector'||node.type==='terminal'){
     const fP=mkField('Nº CONEXIONES ACTIVAS');
     const iP=makeEnterInput(node.connectionsCount ? String(node.connectionsCount) : '', v=>{
