@@ -132,6 +132,13 @@ closeTabAccept.addEventListener('click',()=>{
     applyHarnessObject(target);
     renderTabs();
   }
+
+  // IMPORTANTE: al cerrar una pestaña no se dispara el click de otra pestaña.
+  // Disparamos el evento para que la tabla de etiquetas se sincronice con el arnés activo.
+  document.dispatchEvent(new CustomEvent('tabChanged', {
+    detail: { harnessId: `harness_${AppState.harness.current + 1}` }
+  }));
+
   persistToLocalStorage();
 });
 closeTabCancel.addEventListener('click',()=>{ AppState.modals.pendingCloseTab=null; closeTabConfirmBackdrop.style.display='none'; });

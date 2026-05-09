@@ -61,6 +61,11 @@
     flex: 1 1 auto;
   }
 
+  /* Cuando la tabla está maximizada, alinear el título a la derecha para mejorar estética */
+  .connection-table.maximized .table-header .table-title {
+    text-align: right;
+  }
+
   .table-header .toggle-btn {
     margin-left: auto;
   }
@@ -125,6 +130,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     box-sizing: border-box;
+  }
+
+  /* Columna 2 = "Etiqueta Central" (dar más ancho para evitar ellipsis) */
+  .connection-table th:nth-child(2),
+  .connection-table td:nth-child(2) {
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
   }
 
   .connection-table td {
@@ -196,6 +209,11 @@
     display: block;
     overflow: hidden;
     resize: none;
+  }
+
+  /* Input de edición para la celda central: mismo ancho que la columna */
+  .connection-table .editable-cell[data-node="central"] input {
+    width: 220px !important;
   }
 
   .connection-table .editable-cell input:focus {
