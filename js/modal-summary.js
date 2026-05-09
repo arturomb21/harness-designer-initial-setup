@@ -226,7 +226,7 @@ exportExcelBtn.addEventListener('click',()=>{
     worksheet.getColumn(4).width = 14; // Pin destino
     worksheet.getColumn(5).width = 20; // Señal / extras
     worksheet.getColumn(6).width = 18; // Tipo cable
-    worksheet.getColumn(7).width = 10; // AWG/mm2
+    worksheet.getColumn(7).width = 16; // AWG/mm2 (más ancho para evitar recorte)
     worksheet.getColumn(8).width = 12; // Color
 
     // Estilado por tipo de fila
@@ -420,35 +420,32 @@ exportExcelBtn.addEventListener('click',()=>{
       (h.nodes || []).forEach(node => {
         const type = node.type || '';
         const displayName = getDisplayName(node, node.id);
+        let wroteNodeName = false; // para no repetir el nodo en todas las filas
+
+        const pushBomRow = (pn, desc) => {
+          const cleanPn = (pn || '').trim();
+          if (!cleanPn) return;
+          bomRows.push({
+            node: wroteNodeName ? '' : displayName,
+            pn: cleanPn,
+            desc: (desc || '').trim()
+          });
+          wroteNodeName = true;
+        };
 
         const pnPrincipal = (node.pn || '').trim();
-        if (pnPrincipal) {
-          bomRows.push({
-            node: displayName,
-            pn: pnPrincipal,
-            desc: `${type === 'terminal' ? 'Terminal' : type === 'connector' ? 'Conector' : 'Nodo'}: ${displayName}`
-          });
-        }
+        if (pnPrincipal) pushBomRow(pnPrincipal, type === 'terminal' ? 'Terminal' : type === 'connector' ? 'Conector' : 'Nodo');
 
         const pnBackshell = (type === 'connector' ? (node.backshell || '').trim() : '');
-        if (pnBackshell) {
-          bomRows.push({
-            node: displayName,
-            pn: pnBackshell,
-            desc: `Backshell (Nodo: ${displayName})`
-          });
-        }
+        if (pnBackshell) pushBomRow(pnBackshell, 'Backshell');
 
         const extraParts = Array.isArray(node.extraParts) ? node.extraParts : [];
         extraParts.forEach(p => {
           const pn = (p && p.pn ? String(p.pn).trim() : '');
           const name = (p && p.name ? String(p.name).trim() : '');
           if (!pn) return; // BOM basada en P/N: si no hay P/N, no se exporta
-          bomRows.push({
-            node: displayName,
-            pn,
-            desc: name ? `Extra: ${name} (Nodo: ${displayName})` : `Extra (Nodo: ${displayName})`
-          });
+          // En descripción, usar el campo "Nombre" del componente adicional
+          pushBomRow(pn, name || 'Componente adicional');
         });
       });
       
@@ -541,7 +538,7 @@ exportExcelBtn.addEventListener('click',()=>{
         worksheet.getColumn(4).width = 8;  // Cantidad/Pin Destino
         worksheet.getColumn(5).width = 20; // Señal
         worksheet.getColumn(6).width = 18; // Tipo Cable
-        worksheet.getColumn(7).width = 10; // AWG/mm2
+        worksheet.getColumn(7).width = 16; // AWG/mm2 (más ancho para evitar recorte)
         worksheet.getColumn(8).width = 12; // Color
       }
     });
